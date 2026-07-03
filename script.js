@@ -10,7 +10,7 @@ function addTask() {
     let li = document.createElement("li");
 
     li.innerHTML = `
-        <span>${task}</span>
+        <span onclick="completeTask(this)">${task}</span>
         <button class="delete-btn" onclick="deleteTask(this)">Delete</button>
     `;
 
@@ -21,4 +21,14 @@ function addTask() {
 
 function deleteTask(button) {
     button.parentElement.remove();
+}
+
+function completeTask(task) {
+    if (task.style.textDecoration === "line-through") {
+        task.style.textDecoration = "none";
+        task.style.color = "black";
+    } else {
+        task.style.textDecoration = "line-through";
+        task.style.color = "green";
+    }
 }
