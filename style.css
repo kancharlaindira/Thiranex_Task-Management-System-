@@ -68,3 +68,7 @@ li {
     border-radius: 4px;
     cursor: pointer;
   }
+span {
+    cursor: pointer;
+    flex: 1;
+}
