@@ -32,3 +32,4 @@ function completeTask(task) {
         task.style.color = "green";
     }
 }
+    
