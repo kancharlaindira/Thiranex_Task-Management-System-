@@ -1,97 +1,98 @@
-document.addEventListener("DOMContentLoaded", () => {
-    loadTasks();
-    updateCounter();
-});
+const input=document.getElementById("taskInput");
+const list=document.getElementById("taskList");
+const counter=document.getElementById("taskCounter");
+const addBtn=document.getElementById("addBtn");
 
-function addTask() {
-    const taskInput = document.getElementById("taskInput");
-    const taskText = taskInput.value.trim();
+let tasks=JSON.parse(localStorage.getItem("tasks"))||[];
 
-    if (taskText === "") {
-        alert("Please enter a task.");
-        return;
-    }
-
-    createTask(taskText);
-    saveTask(taskText);
-
-    taskInput.value = "";
-    updateCounter();
+function saveTasks(){
+    localStorage.setItem("tasks",JSON.stringify(tasks));
 }
 
-function createTask(taskText) {
-    const li = document.createElement("li");
+function updateCounter(){
+    counter.textContent=tasks.length;
+}
 
-    li.innerHTML = `
-        <span class="task">${taskText}</span>
+function displayTasks(){
+
+    list.innerHTML="";
+
+    tasks.forEach((task,index)=>{
+
+        const li=document.createElement("li");
+
+        li.innerHTML=`
+        <span class="task ${task.completed?'completed':''}">
+        ${task.name}
+        </span>
 
         <div class="actions">
-            <button class="edit-btn">Edit</button>
-            <button class="delete-btn">Delete</button>
+        <button class="edit-btn">Edit</button>
+        <button class="delete-btn">Delete</button>
         </div>
-    `;
+        `;
 
-    const taskSpan = li.querySelector(".task");
-    const editBtn = li.querySelector(".edit-btn");
-    const deleteBtn = li.querySelector(".delete-btn");
+        const taskSpan=li.querySelector(".task");
 
-    taskSpan.addEventListener("click", function () {
-        taskSpan.classList.toggle("completed");
+        taskSpan.onclick=function(){
+            tasks[index].completed=!tasks[index].completed;
+            saveTasks();
+            displayTasks();
+        };
+
+        li.querySelector(".edit-btn").onclick=function(){
+
+            let newTask=prompt("Edit Task",tasks[index].name);
+
+            if(newTask && newTask.trim()!==""){
+                tasks[index].name=newTask.trim();
+                saveTasks();
+                displayTasks();
+            }
+
+        };
+
+        li.querySelector(".delete-btn").onclick=function(){
+
+            tasks.splice(index,1);
+
+            saveTasks();
+
+            displayTasks();
+
+        };
+
+        list.appendChild(li);
+
     });
 
-    editBtn.addEventListener("click", function () {
-        const newTask = prompt("Edit Task", taskSpan.textContent);
+    updateCounter();
 
-        if (newTask && newTask.trim() !== "") {
-            updateStoredTask(taskSpan.textContent, newTask.trim());
-            taskSpan.textContent = newTask.trim();
-        }
-    });
-
-    deleteBtn.addEventListener("click", function () {
-        removeStoredTask(taskSpan.textContent);
-        li.remove();
-        updateCounter();
-    });
-
-    document.getElementById("taskList").appendChild(li);
 }
 
-function saveTask(task) {
-    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-    tasks.push(task);
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-}
+addBtn.onclick=function(){
 
-function loadTasks() {
-    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    let value=input.value.trim();
 
-    tasks.forEach(task => {
-        createTask(task);
-    });
-}
+    if(value===""){
 
-function removeStoredTask(task) {
-    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+        alert("Please enter a task");
 
-    tasks = tasks.filter(t => t !== task);
+        return;
 
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-}
-
-function updateStoredTask(oldTask, newTask) {
-    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-
-    const index = tasks.indexOf(oldTask);
-
-    if (index !== -1) {
-        tasks[index] = newTask;
     }
 
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-}
+    tasks.push({
+        name:value,
+        completed:false
+    });
 
-function updateCounter() {
-    document.getElementById("taskCounter").textContent =
-        document.querySelectorAll("#taskList li").length;
-}
+    input.value="";
+
+    saveTasks();
+
+    displayTasks();
+
+};
+
+displayTasks();
